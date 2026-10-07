@@ -2,12 +2,6 @@ import { z } from "zod";
 import { defineEndpoint } from "@/lib/endpoint";
 import { ApiError } from "@/lib/errors";
 
-/**
- * One schema for every wearable. Send the raw payload you got from Apple Health,
- * Health Connect, Fitbit, Garmin, Oura or WHOOP and get back clean daily rows.
- * Add a vendor: write a mapper below and register it in MAPPERS.
- */
-
 const Sources = ["apple_health", "health_connect", "fitbit", "garmin", "oura", "whoop"] as const;
 
 const Sleep = z.object({
@@ -54,7 +48,6 @@ const Output = z.object({
   warnings: z.array(z.string()),
 });
 
-// ---------- helpers ----------
 type Obj = Record<string, unknown>;
 const num = (v: unknown): number | undefined => {
   const n = typeof v === "string" ? Number(v) : v;
@@ -115,16 +108,13 @@ class DayBook {
   }
 }
 
-// ---------- vendor mappers ----------
 type Mapper = (data: unknown, tz: string, book: DayBook, warn: (m: string) => void) => void;
 
-/** HealthKit samples: [{ type: "HKQuantityTypeIdentifierStepCount", value, unit, startDate, endDate }] */
 const appleHealth: Mapper = (data, tz, book, warn) => {
   const samples = Array.isArray(data) ? arr(data) : arr(obj(data).samples);
   const unknown = new Set<string>();
   for (const s of samples) {
     const type = String(s.type ?? "").replace(/^HK(Quantity|Category)TypeIdentifier/, "");
-    // Sleep is attributed to the day you wake up.
     const date = dayKey(type === "SleepAnalysis" ? s.endDate : s.startDate, tz);
     const v = num(s.value);
     switch (type) {
@@ -133,7 +123,6 @@ const appleHealth: Mapper = (data, tz, book, warn) => {
       case "RestingHeartRate": book.avg(date, "resting_hr_bpm", v); break;
       case "HeartRate": book.avg(date, "avg_hr_bpm", v); break;
       case "HeartRateVariabilitySDNN":
-        // Apple reports SDNN, not RMSSD. Kept as the closest proxy and flagged.
         book.avg(date, "hrv_rmssd_ms", v);
         unknown.add("HRV from Apple Health is SDNN, used as an RMSSD proxy");
         break;
@@ -155,10 +144,8 @@ const appleHealth: Mapper = (data, tz, book, warn) => {
   unknown.forEach(warn);
 };
 
-/** Android Health Connect records: [{ recordType: "StepsRecord", count, startTime, ... }] */
 const healthConnect: Mapper = (data, tz, book, warn) => {
   const records = Array.isArray(data) ? arr(data) : arr(obj(data).records);
-  // Health Connect SleepSessionRecord stage constants.
   const STAGE: Record<number, "awake_min" | "light_min" | "deep_min" | "rem_min" | undefined> = { 1: "awake_min", 2: "light_min", 4: "light_min", 5: "deep_min", 6: "rem_min", 7: "awake_min" };
   for (const r of records) {
     const type = String(r.recordType ?? "");
@@ -189,7 +176,6 @@ const healthConnect: Mapper = (data, tz, book, warn) => {
   }
 };
 
-/** Fitbit Web API responses merged into one object. */
 const fitbit: Mapper = (data, _tz, book) => {
   const d = obj(data);
   for (const s of arr(d["activities-steps"])) book.set(dayKey(s.dateTime, "UTC"), "steps", num(s.value));
@@ -211,7 +197,6 @@ const fitbit: Mapper = (data, _tz, book) => {
   }
 };
 
-/** Garmin Health API summaries: { dailies, sleeps, hrv }. */
 const garmin: Mapper = (data, _tz, book) => {
   const d = obj(data);
   for (const s of arr(d.dailies)) {
@@ -234,7 +219,6 @@ const garmin: Mapper = (data, _tz, book) => {
   for (const s of arr(d.pulseox ?? d.pulseOx)) book.set(dayKey(s.calendarDate, "UTC"), "spo2_pct", num(s.averageSpO2 ?? s.avgSpo2));
 };
 
-/** Oura API v2 collections: { daily_activity, sleep, daily_readiness, daily_spo2 } (each { data: [...] } or [...]). */
 const oura: Mapper = (data, _tz, book) => {
   const d = obj(data);
   const list = (k: string) => (Array.isArray(d[k]) ? arr(d[k]) : arr(obj(d[k]).data));
@@ -260,7 +244,6 @@ const oura: Mapper = (data, _tz, book) => {
   for (const s of list("daily_spo2")) book.set(dayKey(s.day, "UTC"), "spo2_pct", num(obj(s.spo2_percentage).average));
 };
 
-/** WHOOP API v2 collections: { recovery, sleep, cycle } (each { records: [...] } or [...]). */
 const whoop: Mapper = (data, tz, book) => {
   const d = obj(data);
   const list = (k: string) => (Array.isArray(d[k]) ? arr(d[k]) : arr(obj(d[k]).records));

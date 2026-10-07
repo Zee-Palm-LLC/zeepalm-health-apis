@@ -2,10 +2,6 @@ import { z } from "zod";
 import { defineEndpoint } from "@/lib/endpoint";
 import { ApiError } from "@/lib/errors";
 
-/**
- * Evidence-based energy and macro targets. Every coefficient lives in CONFIG so
- * your dietitian can tune it. Output plugs straight into /meal-plan `targets`.
- */
 const CONFIG = {
   activityFactors: { sedentary: 1.2, light: 1.375, moderate: 1.55, very: 1.725, athlete: 1.9 },
   kcalPerKgBodyMass: 7700,

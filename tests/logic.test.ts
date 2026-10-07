@@ -6,7 +6,6 @@ import { toStrictAllRequired } from "@/lib/json-schema";
 describe("nutrition-targets", () => {
   it("matches Mifflin-St Jeor and converts imperial units", async () => {
     const { body } = await call("nutrition-targets", { sex: "male", age: 30, height_in: 70.866, weight_lb: 176.37, goal: "maintain", activity_level: "sedentary" });
-    // 10*80 + 6.25*180 - 5*30 + 5 = 1780
     expect(body.data.bmr.kcal).toBeCloseTo(1780, -1);
     expect(body.data.tdee_kcal).toBe(2140);
   });
@@ -58,7 +57,6 @@ describe("wearables-normalize", () => {
         { type: "HKQuantityTypeIdentifierStepCount", value: 1000, startDate: "2026-10-05T03:00:00Z", endDate: "2026-10-05T03:10:00Z" },
       ],
     });
-    // 20:00Z = 01:00 on the 5th in Karachi (UTC+5)
     expect(body.data.days).toEqual([expect.objectContaining({ date: "2026-10-05", steps: 5000 })]);
   });
 });

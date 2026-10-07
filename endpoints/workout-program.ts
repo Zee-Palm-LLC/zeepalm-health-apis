@@ -1,12 +1,6 @@
 import { z } from "zod";
 import { defineEndpoint } from "@/lib/endpoint";
 
-/**
- * AI-generated, periodised training program that respects equipment,
- * injuries and schedule. Returns one training week plus a week-by-week
- * progression, which is compact and easy to render in an app.
- */
-
 const EQUIPMENT_PRESETS: Record<string, string[]> = {
   full_gym: ["barbell", "dumbbells", "cable machine", "machines", "pull-up bar", "bench", "squat rack", "cardio machines"],
   home_dumbbells: ["adjustable dumbbells", "bench", "resistance bands", "bodyweight"],

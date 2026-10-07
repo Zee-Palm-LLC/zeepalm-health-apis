@@ -1,12 +1,6 @@
 import { z } from "zod";
 import { defineEndpoint } from "@/lib/endpoint";
 
-/**
- * Daily readiness score from HRV, resting HR, sleep, training load (ACWR) and
- * how the user feels. Personal baselines, not population norms.
- * `days` accepts the `data.days` array from /wearables-normalize as-is.
- */
-
 const DayIn = z.object({
   date: z.string(),
   hrv_rmssd_ms: z.number().positive().optional(),
@@ -91,7 +85,6 @@ export default defineEndpoint({
     const prior = days.slice(0, -1).slice(-30);
     const flags: { code: string; message: string }[] = [];
 
-    // HRV: ln(rMSSD) vs personal baseline; ±0.5 SD is normal day-to-day noise.
     const hrvBase = prior.map((d) => d.hrv_rmssd_ms).filter((v): v is number => v !== undefined);
     let hrv: z.infer<typeof Output>["components"]["hrv"];
     if (today.hrv_rmssd_ms && hrvBase.length >= MIN_BASELINE_DAYS) {
@@ -110,7 +103,6 @@ export default defineEndpoint({
       hrv = { status: "insufficient_data", detail: `Needs today's HRV and ${MIN_BASELINE_DAYS}+ prior days.` };
     }
 
-    // Resting HR: each bpm above baseline costs points.
     const rhrBase = prior.map((d) => d.resting_hr_bpm).filter((v): v is number => v !== undefined);
     let rhr: z.infer<typeof Output>["components"]["resting_hr"];
     if (today.resting_hr_bpm && rhrBase.length >= MIN_BASELINE_DAYS) {
@@ -131,7 +123,6 @@ export default defineEndpoint({
       flags.push({ code: "illness_watch", message: "Low HRV together with high resting HR. Watch for illness symptoms." });
     }
 
-    // Sleep: 80% duration vs need, 20% efficiency.
     const total = today.sleep?.total_min;
     const eff = today.sleep?.efficiency_pct;
     let sleep: z.infer<typeof Output>["components"]["sleep"];
@@ -151,7 +142,6 @@ export default defineEndpoint({
       sleep = { status: "insufficient_data", need_min: sleep_need_min, detail: "No sleep duration for today." };
     }
 
-    // Load: acute (7-day) vs chronic (28-day) daily average.
     const loads = days.slice(-28).map((d) => d.training_load);
     const known = loads.filter((v): v is number => v !== undefined);
     let load: z.infer<typeof Output>["components"]["load"];
@@ -174,7 +164,6 @@ export default defineEndpoint({
       load = { status: "insufficient_data", detail: "Needs training_load on 14+ of the last 28 days." };
     }
 
-    // Subjective: soreness and stress are inverted, mood is direct.
     const subj = [today.soreness_1_5 && 6 - today.soreness_1_5, today.stress_1_5 && 6 - today.stress_1_5, today.mood_1_5].filter((v): v is number => typeof v === "number");
     const subjective = subj.length
       ? { score: r(((mean(subj) - 1) / 4) * 100, 0), status: "ok" as const, detail: `Based on ${subj.length} self-reported rating(s).` }

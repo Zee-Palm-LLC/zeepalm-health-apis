@@ -1,13 +1,6 @@
 import { z } from "zod";
 import { defineEndpoint } from "@/lib/endpoint";
 
-/**
- * AI meal plans that hit macro targets, plus deterministic guardrails:
- * daily totals are recomputed in code and every ingredient is scanned
- * against the client's allergies.
- */
-
-/** Ingredient keywords per allergen. Extend for your cuisine / market. */
 const ALLERGEN_KEYWORDS: Record<string, string[]> = {
   peanut: ["peanut", "groundnut", "satay"],
   tree_nut: ["almond", "cashew", "walnut", "pecan", "pistachio", "hazelnut", "macadamia", "brazil nut", "pine nut", "praline", "marzipan"],
@@ -118,7 +111,6 @@ export default defineEndpoint({
           const name = ing.item.toLowerCase();
           for (const a of allergens) {
             const words = ALLERGEN_KEYWORDS[a] ?? [a.replace(/_/g, " ")];
-            // "peanut-free", "dairy free" etc. are fine.
             if (words.some((w) => name.includes(w)) && !/\b(free|vegan|plant[- ]based)\b/.test(name)) {
               conflicts.push({ day: d.day, meal: meal.name, ingredient: ing.item, allergen: a });
             }

@@ -22,7 +22,6 @@ const KEY_ENV: Record<Exclude<ProviderName, "mock">, string> = {
 
 export type ImageInput = { url: string } | { base64: string; media_type: string };
 
-/** What a provider adapter receives. `schema` is plain JSON Schema (type: object). */
 export interface ProviderRequest {
   apiKey: string;
   model: string;
@@ -37,7 +36,6 @@ export interface GenerateArgs<T> {
   system: string;
   prompt: string;
   images?: ImageInput[];
-  /** Default output shape. Ignored when the caller sends `options.response_schema`. */
   schema: z.ZodType<T>;
   maxTokens?: number;
 }
@@ -49,14 +47,10 @@ export interface AIResolved {
 
 export interface AIClient {
   generate<T>(args: GenerateArgs<T>): Promise<T>;
-  /** Provider/model actually used (null until the first call). */
   used(): AIResolved | null;
-  /** True when the caller supplied `options.response_schema`. */
   customSchema: boolean;
 }
 
-/** Thrown by `generate` when a custom response schema is used: the endpoint's
- *  post-processing is skipped and this payload becomes `data` as-is. */
 export class CustomSchemaResult {
   constructor(public data: unknown) {}
 }

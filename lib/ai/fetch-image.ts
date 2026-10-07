@@ -3,7 +3,6 @@ import type { ImageInput } from "./index";
 
 const MAX_BYTES = 5 * 1024 * 1024;
 
-/** Inline an image as base64 (for providers that can't fetch URLs themselves). */
 export async function toBase64Image(img: ImageInput): Promise<{ base64: string; media_type: string }> {
   if (!("url" in img)) return img;
   const url = new URL(img.url);

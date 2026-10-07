@@ -2,12 +2,6 @@ import { z } from "zod";
 import { defineEndpoint } from "@/lib/endpoint";
 import { crisisResources, detectRedFlags } from "@/lib/safety";
 
-/**
- * Session transcript or rough notes → structured clinical/coaching note
- * (SOAP, DAP, BIRP or GROW), action items, metrics, follow-up and a
- * plain-language recap the client can receive.
- */
-
 const FORMATS = {
   soap: [["S", "Subjective"], ["O", "Objective"], ["A", "Assessment"], ["P", "Plan"]],
   dap: [["D", "Data"], ["A", "Assessment"], ["P", "Plan"]],

@@ -2,7 +2,6 @@ import { ApiError } from "../errors";
 import { toBase64Image } from "./fetch-image";
 import type { ProviderRequest } from "./index";
 
-/** Google Gemini generateContent with JSON Schema output. */
 export async function geminiGenerate(req: ProviderRequest): Promise<unknown> {
   const images = await Promise.all(req.images.map(toBase64Image));
   const res = await fetch(`${(process.env.GEMINI_BASE_URL ?? "https://generativelanguage.googleapis.com/v1beta").replace(/\/$/, "")}/models/${encodeURIComponent(req.model)}:generateContent`, {

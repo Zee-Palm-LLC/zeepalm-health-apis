@@ -3,24 +3,15 @@ import { defineEndpoint } from "@/lib/endpoint";
 import { ApiError } from "@/lib/errors";
 import { crisisResources, detectRedFlags } from "@/lib/safety";
 
-/**
- * Scores validated, free-to-use screening questionnaires with published cut-offs,
- * change tracking and a hard safety rule on self-harm items.
- * Add an instrument: add an entry to INSTRUMENTS.
- */
-
 interface Instrument {
   name: string;
   items: number;
   min: number;
   max: number;
-  /** [upper bound inclusive, label] sorted ascending */
   bands: [number, string][];
   positiveAt?: number;
-  /** Points of change considered clinically meaningful. */
   reliableChange: number;
   higherIsWorse: boolean;
-  /** Item index (0-based) that screens for self-harm. */
   selfHarmItem?: number;
   transform?: (total: number) => number;
   itemText: string[];

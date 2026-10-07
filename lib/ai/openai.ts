@@ -2,10 +2,6 @@ import { ApiError } from "../errors";
 import { toStrictAllRequired } from "../json-schema";
 import type { ProviderRequest } from "./index";
 
-/**
- * OpenAI Chat Completions with strict JSON Schema output.
- * Works with any OpenAI-compatible server via OPENAI_BASE_URL (Groq, OpenRouter, Together, Ollama...).
- */
 export async function openaiGenerate(req: ProviderRequest): Promise<unknown> {
   const base = (process.env.OPENAI_BASE_URL ?? "https://api.openai.com/v1").replace(/\/$/, "");
   const userContent = [

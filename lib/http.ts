@@ -32,7 +32,6 @@ function zodIssues(error: z.ZodError, prefix = "") {
   return error.issues.map((i) => ({ path: [prefix, ...i.path.map(String)].filter(Boolean).join("."), message: i.message }));
 }
 
-/** Optional protection for your deployment: set API_ACCESS_KEYS="key1,key2". */
 function checkAccess(req: Request) {
   const keys = (process.env.API_ACCESS_KEYS ?? "").split(",").map((k) => k.trim()).filter(Boolean);
   if (!keys.length) return;
@@ -111,7 +110,6 @@ export async function handlePost(endpoint: AnyEndpoint, req: Request): Promise<R
   }
 }
 
-/** GET /api/v1/<slug> → self-describing docs for the endpoint. */
 export function describe(endpoint: AnyEndpoint, baseUrl = "") {
   return {
     slug: endpoint.slug,

@@ -3,13 +3,6 @@ import { defineEndpoint } from "@/lib/endpoint";
 import { CustomSchemaResult } from "@/lib/ai";
 import { EMERGENCY_REPLY, detectRedFlags } from "@/lib/safety";
 
-/**
- * The brain of an AI receptionist / WhatsApp bot / voice booking agent.
- * One inbound message in → intent, urgency, booking entities with resolved
- * ISO times, missing info, a ready-to-send reply and a human-handoff decision.
- * Emergencies are caught by deterministic rules first; the model can never downgrade them.
- */
-
 const Input = z.object({
   message: z.string().min(1).max(4000),
   channel: z.enum(["whatsapp", "sms", "web_chat", "voice_transcript", "email", "instagram_dm"]).default("whatsapp"),
@@ -105,7 +98,6 @@ Classify the client's latest message and draft a reply for the ${input.channel} 
       schema: AIOut,
     });
     } catch (err) {
-      // If the model is unavailable, an emergency still gets an emergency response.
       if (!flagged || err instanceof CustomSchemaResult) throw err;
       out = {
         intent: "emergency", secondary_intents: [], urgency: "emergency", sentiment: "distressed",
@@ -114,7 +106,6 @@ Classify the client's latest message and draft a reply for the ${input.channel} 
       };
     }
 
-    // Safety net: rules can only escalate.
     if (flagged) {
       const flags = redFlags.length ? redFlags : detectRedFlags(text);
       return {

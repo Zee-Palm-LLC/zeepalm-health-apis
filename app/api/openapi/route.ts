@@ -3,7 +3,6 @@ import { RequestOptionsSchema } from "@/lib/endpoint";
 import { json } from "@/lib/http";
 import { zodToJsonSchema } from "@/lib/json-schema";
 
-/** OpenAPI 3.1 spec generated from the Zod schemas. Import into Postman, Insomnia or Swagger UI. */
 export function GET(req: Request) {
   const origin = new URL(req.url).origin;
   const options = zodToJsonSchema(RequestOptionsSchema, "input");

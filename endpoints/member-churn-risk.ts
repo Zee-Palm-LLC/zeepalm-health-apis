@@ -1,28 +1,21 @@
 import { z } from "zod";
 import { defineEndpoint } from "@/lib/endpoint";
 
-/**
- * Explainable churn scoring for gyms, studios, coaching programs and apps.
- * No training data needed: a transparent logistic model over behaviour signals.
- * Tune `weights` per request, or edit DEFAULT_WEIGHTS / PLAYBOOK below.
- * Once you have history, swap `score()` for a trained model and keep the API.
- */
-
 const DEFAULT_WEIGHTS = {
   intercept: -2.2,
-  days_since_last_visit: 0.06, // per day
-  visit_drop_pct: 0.025, // per % drop vs previous 30 days
-  low_frequency: 0.9, // < 4 visits in 30 days
-  new_member: 0.6, // first 90 days
-  no_shows: 0.35, // per no-show in 30 days
-  payment_failures: 0.8, // per failed payment in 90 days
+  days_since_last_visit: 0.06,
+  visit_drop_pct: 0.025,
+  low_frequency: 0.9,
+  new_member: 0.6,
+  no_shows: 0.35,
+  payment_failures: 0.8,
   freeze_requests: 0.9,
   open_complaints: 0.6,
-  contract_ending_soon: 0.8, // within 30 days, monthly-renewing plans excluded
-  low_nps: 1.1, // NPS score 0-6
-  promoter: -0.8, // NPS score 9-10
-  referrals: -0.5, // per referral made
-  app_inactive: 0.5, // no app session in 14 days
+  contract_ending_soon: 0.8,
+  low_nps: 1.1,
+  promoter: -0.8,
+  referrals: -0.5,
+  app_inactive: 0.5,
 };
 
 const Member = z.object({
@@ -73,7 +66,6 @@ const Output = z.object({
   }),
 });
 
-/** Which retention play to run for each driver. Edit to match your playbook. */
 const PLAYBOOK: Record<string, z.infer<typeof Action>> = {
   days_since_last_visit: { action: "Personal 'we miss you' message from their coach with a booking link", channel: "whatsapp", priority: "now" },
   visit_drop_pct: { action: "Offer a free goal-review / progress check session", channel: "sms", priority: "this_week" },

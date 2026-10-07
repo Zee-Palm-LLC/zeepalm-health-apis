@@ -4,7 +4,6 @@ import type { BetaContentBlockParam } from "@anthropic-ai/sdk/resources/beta/mes
 import { ApiError } from "../errors";
 import type { ProviderRequest } from "./index";
 
-// Models that accept server-side refusal fallbacks (`fallbacks: "default"`).
 const FALLBACK_MODELS = new Set(["claude-fable-5-1", "claude-opus-5-5", "claude-opus-5", "claude-sonnet-5-5"]);
 type Effort = "low" | "medium" | "high" | "xhigh" | "max";
 

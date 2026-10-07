@@ -10,7 +10,6 @@ import frontDeskIntake from "./front-desk-intake";
 import labelScan from "./label-scan";
 import sessionNotes from "./session-notes";
 
-/** Register endpoints here. Remove a line to disable one; add yours with defineEndpoint(). */
 export const endpoints: AnyEndpoint[] = [
   wearablesNormalize,
   recoveryReadiness,

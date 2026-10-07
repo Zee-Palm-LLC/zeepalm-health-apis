@@ -1,13 +1,6 @@
 import { z } from "zod";
 import { defineEndpoint } from "@/lib/endpoint";
 
-/**
- * Photo of a supplement facts or nutrition facts label → structured JSON,
- * then deterministic checks: adult tolerable upper limits (per daily dose),
- * allergens, caffeine and proprietary blends.
- */
-
-/** Adult Tolerable Upper Intake Levels (NIH ODS / NAM), supplemental where noted. Units must match the label unit. */
 const UPPER_LIMITS: { match: RegExp; limit: number; unit: string; note: string }[] = [
   { match: /vitamin d/i, limit: 100, unit: "mcg", note: "4,000 IU/day" },
   { match: /vitamin a/i, limit: 3000, unit: "mcg", note: "preformed vitamin A (RAE)" },
@@ -31,7 +24,7 @@ const toUnit = (amount: number, from: string, to: string): number | undefined =>
   if (f === "g" && to === "mg") return amount * 1000;
   if (f === "mg" && to === "mcg") return amount * 1000;
   if (f === "mcg" && to === "mg") return amount / 1000;
-  if (f === "iu" && to === "mcg") return undefined; // IU conversion depends on the nutrient
+  if (f === "iu" && to === "mcg") return undefined;
   return undefined;
 };
 

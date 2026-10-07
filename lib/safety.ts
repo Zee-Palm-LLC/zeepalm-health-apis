@@ -1,9 +1,3 @@
-/**
- * Deterministic safety net that runs BEFORE and AFTER any model call.
- * AI can raise urgency, but can never lower what these rules detect.
- * Extend the pattern lists for your locale / clinical protocol.
- */
-
 export type RedFlagCategory = "self_harm" | "cardiac" | "stroke" | "breathing" | "bleeding" | "overdose" | "anaphylaxis" | "consciousness" | "harm_to_others";
 
 const RULES: { category: RedFlagCategory; label: string; patterns: RegExp[] }[] = [
@@ -92,13 +86,11 @@ export interface CrisisResource {
   contact: string;
 }
 
-/** Override with CRISIS_RESOURCES_JSON='[{"region":"PK","name":"...","contact":"..."}]'. */
 export function crisisResources(): CrisisResource[] {
   if (process.env.CRISIS_RESOURCES_JSON) {
     try {
       return JSON.parse(process.env.CRISIS_RESOURCES_JSON);
     } catch {
-      /* fall through to defaults */
     }
   }
   return [

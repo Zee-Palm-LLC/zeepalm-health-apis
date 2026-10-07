@@ -3,7 +3,6 @@ import { afterAll, afterEach, beforeAll, describe, expect, it, vi } from "vitest
 import { endpoints } from "@/endpoints";
 import { call } from "./helpers";
 
-// A fake provider server: records each request and replies in that provider's wire format.
 let server: Server;
 let base = "";
 const seen: { url: string; headers: Record<string, unknown>; body: any }[] = [];
